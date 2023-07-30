@@ -10,6 +10,7 @@ def extract_show_info(show_text: str):
     show_text = show_text[: show_text.find("(")]
     show_city = show_text.split(sep=" - ")[0].strip()
     show_venue = show_text.split(sep=" - ")[1].strip()
+    print(show_date, show_city, show_venue)
     return show_date, show_city, show_venue
 
 
@@ -18,14 +19,24 @@ def extract_songs(raw_setlist):
     setlist = []
     for song in raw_setlist.splitlines():
         song = song.strip()
-        if song == "":
-            continue
-        setlist.append(song)
+        if song != "":
+            print(song)
+            setlist.append(song)
     return setlist
 
 
+def is_live_debut(setlist):
+    live_debut_list = []
+    for song in setlist:
+        if song.endswith("(live debut)"):
+            live_debut_list.append("Live debut")
+        else:
+            live_debut_list.append("")
+    return live_debut_list
+
+
 def scrape_morrissey_tour_info_from_urls(urls):
-    csv = "show_date, show_city, show_venue, song_num, song\n"
+    csv = "show_date,show_city,show_venue,song_num,song,live_debut\n"
     for url in urls:
         page = requests.get(url)
         soup = BeautifulSoup(page.text, "html.parser")
@@ -42,17 +53,22 @@ def scrape_morrissey_tour_info_from_urls(urls):
 
             show_date, show_city, show_venue = extract_show_info(show_title)
             extracted_songs = extract_songs(setlist_text)
+            live_debut = is_live_debut(extracted_songs)
 
-            for idx, song in enumerate(extracted_songs):
-                csv += f"{show_date},\"{show_city}\",\"{show_venue}\",{idx + 1},\"{song}\"\n"
+            for idx, (song, debut) in enumerate(zip(extracted_songs, live_debut)):
+                song = song.removesuffix("(live debut)")
+                csv += f"{show_date},\"{show_city}\",\"{show_venue}\",{idx + 1},\"{song}\",\"{debut}\"\n"
     return csv
 
 
-URLS = ["https://www.morrissey-solo.com/tour/2023/",
-        "https://www.morrissey-solo.com/tour/#archive"]
+def run():
+    URLS = ["https://www.morrissey-solo.com/tour/2023/",
+            "https://www.morrissey-solo.com/tour/#archive"]
+    with open("morrissey_tour_2023.csv", "w") as f:
+        setlist_ = scrape_morrissey_tour_info_from_urls(URLS)
+        f.write(setlist_)
+    print(">>> end of process")
 
-with open("morrissey_tour_2023.csv", "w") as f:
-    setlist_ = scrape_morrissey_tour_info_from_urls(URLS)
-    f.write(setlist_)
 
-print("end of process")
+if __name__ == '__main__':
+    run()
