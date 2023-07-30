@@ -56,7 +56,7 @@ def scrape_morrissey_tour_info_from_urls(urls):
             live_debut = is_live_debut(extracted_songs)
 
             for idx, (song, debut) in enumerate(zip(extracted_songs, live_debut)):
-                song = song.removesuffix("(live debut)")
+                song = song.removesuffix("(live debut)").strip()
                 csv += f"{show_date},\"{show_city}\",\"{show_venue}\",{idx + 1},\"{song}\",\"{debut}\"\n"
     return csv
 
