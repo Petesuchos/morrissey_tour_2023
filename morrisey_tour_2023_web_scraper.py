@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+from lxml import etree
 
 
 def extract_show_info(show_text: str):
@@ -47,9 +48,11 @@ def scrape_morrissey_tour_info_from_urls(urls):
             show_soup = BeautifulSoup(show_page.text, "html.parser")
 
             show_title = show_soup.find("h1", class_="p-title-value").text
-            setlist_text = show_soup.body.find(
-                string="Setlist:"
-            ).next_element.next_element.next_element.next_element.text
+            dom = etree.HTML(show_page.text)
+            xpath_str = (
+                '//article[starts-with(@id, "js-post-")]/div/div/div/div[1]/div/div/div[1]/article/div[1]/div/text()[5]'
+            )
+            setlist_text = dom.xpath(xpath_str)[0]
 
             show_date, show_city, show_venue = extract_show_info(show_title)
             extracted_songs = extract_songs(setlist_text)
