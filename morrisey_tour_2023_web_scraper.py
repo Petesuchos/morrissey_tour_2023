@@ -65,8 +65,9 @@ def scrape_morrissey_tour_info_from_urls(urls):
 
 
 def run():
-    urls = ["https://www.morrissey-solo.com/tour/2023/",
-            "https://www.morrissey-solo.com/tour/#archive"]
+    # urls = ["https://www.morrissey-solo.com/tour/2023/",
+    #         "https://www.morrissey-solo.com/tour/#archive"]
+    urls = ["https://www.morrissey-solo.com/tour/2023/"]
     with open("morrissey_tour_2023.csv", "w") as f:
         setlist_ = scrape_morrissey_tour_info_from_urls(urls)
         f.write(setlist_)
